@@ -19,7 +19,7 @@ class KivyRecipe(CythonRecipe):
     depends = ["sdl2", "sdl2_image", "sdl2_mixer", "sdl2_ttf", "ios",
                "pyobjus", "python", "host_setuptools3"]
     python_depends = ["certifi"]
-    pbx_frameworks = ["OpenGLES", "Accelerate", "CoreMedia", "CoreVideo"]
+    pbx_frameworks = ["Accelerate", "CoreMedia", "CoreVideo"]
     pre_build_ext = True
 
     def get_recipe_env(self, arch):
@@ -43,9 +43,17 @@ class KivyRecipe(CythonRecipe):
             for line in lines[:]:
                 if pattern in line:
                     lines.remove(line)
+
+        def _sub_pattern(lines, pattern_old, pattern_new):
+            for i, line in enumerate(lines[:]):
+                if pattern_old in line:
+                    lines[i] = lines[i].replace(pattern_old, pattern_new)
+
         with open(pyconfig) as fd:
             lines = fd.readlines()
         _remove_line(lines, "flags['libraries'] = ['GLESv2']")
+        _sub_pattern(lines, "OpenGLES", "MetalANGLE")
+        # _remove_line(lines, "c_options['use_sdl'] = True")
         with open(pyconfig, "w") as fd:
             fd.writelines(lines)
 

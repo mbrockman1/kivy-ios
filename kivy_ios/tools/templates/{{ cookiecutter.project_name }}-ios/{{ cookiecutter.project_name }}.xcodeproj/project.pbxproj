@@ -27,6 +27,20 @@
 		59994E3B148E85C800863906 /* YourApp in Resources */ = {isa = PBXBuildFile; fileRef = 59994E3A148E85C800863906 /* YourApp */; };
 /* End PBXBuildFile section */
 
+
+/* Begin PBXCopyFilesBuildPhase section */
+		EF5745029C423687AC1203A1 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		01532DA9137C099F0076F6BF /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon.png; sourceTree = "<group>"; };
 		1D6058910D05DD3D006BFB54 /* {{ cookiecutter.project_name }}.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = {{ cookiecutter.project_name }}.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -48,6 +62,7 @@
 		59738AD91A8E62D6001B2C0C /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default@2x.png"; path = "LaunchImages/Default@2x.png"; sourceTree = "<group>"; };
 		59738ADA1A8E62D6001B2C0C /* Default@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default@3x.png"; path = "LaunchImages/Default@3x.png"; sourceTree = "<group>"; };
 		59994E3A148E85C800863906 /* YourApp */ = {isa = PBXFileReference; lastKnownFileType = folder; path = YourApp; sourceTree = "<group>"; };
+		ACAA5ADB24791C6100C86143 /* frameworks_thinner.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = frameworks_thinner.sh; sourceTree = SOURCE_ROOT; };
 		8D1107310486CEB800E47090 /* {{ cookiecutter.project_name }}-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "{{ cookiecutter.project_name }}-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -82,6 +97,7 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				ACAA5ADA24791C3C00C86143 /* Scripts */,
 				080E96DDFE201D6D7F000001 /* Classes */,
 				29B97315FDCFA39411CA2CEA /* Sources */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
@@ -130,6 +146,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		ACAA5ADA24791C3C00C86143 /* Scripts */ = {
+			isa = PBXGroup;
+			children = (
+				ACAA5ADB24791C6100C86143 /* frameworks_thinner.sh */,
+			);
+			path = Scripts;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -143,6 +167,8 @@
 				1D60588D0D05DD3D006BFB54 /* Resources */,
 				1D60588E0D05DD3D006BFB54 /* Sources */,
 				1D60588F0D05DD3D006BFB54 /* Frameworks */,
+				EF5745029C423687AC1203A1 /* Embed Frameworks */,
+				ACAA5AD924791BF300C86143 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -252,6 +278,26 @@
 			shellPath = /bin/bash;
 			shellScript = "find \"$PROJECT_DIR\"/YourApp/ -regex '.*\\.py' -delete";
 		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		ACAA5AD924791BF300C86143 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"$PROJECT_DIR\"/frameworks_thinner.sh\n";
+ 		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */

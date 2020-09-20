@@ -810,8 +810,13 @@ class Recipe:
                 self.make_lipo(static_fn, library)
         logger.info("Install include files for {}".format(self.name))
         self.install_include()
-        logger.info("Install frameworks for {}".format(self.name))
-        self.install_frameworks()
+        if self.frameworks:
+            logger.info("Make lipo framework for {}".format(self.name))
+            for framework in self.frameworks:
+                framework_fn = join(self.ctx.dist_dir, "frameworks", "{}.framework".format(framework['name']))
+                ensure_dir(dirname(framework_fn))
+                logger.info("  - Lipo-ize {}".format(framework['name']))
+                self.make_lipo_framework(framework_fn, framework)
         logger.info("Install sources for {}".format(self.name))
         self.install_sources()
         logger.info("Install python deps for {}".format(self.name))
@@ -865,19 +870,24 @@ class Recipe:
         shprint(sh.lipo, "-create", "-output", filename, *args)
 
     @cache_execution
-    def install_frameworks(self):
-        if not self.frameworks:
+    def make_lipo_framework(self, filename, framework=None):
+        if framework is None:
+            framework = self.framework
+        if not framework:
             return
-        arch = self.filtered_archs[0]
-        build_dir = self.get_build_dir(arch.arch)
-        for framework in self.frameworks:
-            logger.info("Install Framework {}".format(framework))
-            src = join(build_dir, framework)
-            dest = join(self.ctx.dist_dir, "frameworks", framework)
-            ensure_dir(dirname(dest))
-            shutil.rmtree(dest, ignore_errors=True)
-            logger.debug("Copy {} to {}".format(src, dest))
-            shutil.copytree(src, dest)
+        args = []
+        ensure_dir(filename)
+        for arch in self.filtered_archs:
+            framework_p = framework['path'].format(arch=arch)
+            args += [join(self.get_build_dir(arch.arch), framework_p, framework['name'])]
+        logger.info("Copy the framework folder for Headers, Info.plst, etc in place")
+        shprint(sh.cp, "-r",
+                join(self.get_build_dir(self.filtered_archs[0].arch),
+                     framework['path'].format(arch=self.filtered_archs[0])),
+                join(self.ctx.dist_dir, "frameworks"))
+        shprint(sh.rm, join(filename, framework['name']))
+        logger.info("Lipo-ize the framework")
+        shprint(sh.lipo, "-create", "-output", join(filename, framework['name']), *args)
 
     @cache_execution
     def install_sources(self):
@@ -1214,17 +1224,19 @@ def update_pbxproj(filename, pbx_frameworks=None):
     group = project.get_or_create_group("Frameworks")
     g_classes = project.get_or_create_group("Classes")
     file_options = FileOptions(embed_framework=False, code_sign_on_copy=True)
+    file_options_embed = FileOptions(embed_framework=True, code_sign_on_copy=True)
     for framework in pbx_frameworks:
-        framework_name = "{}.framework".format(framework)
-        if framework_name in frameworks:
+        if framework in [x['name'] for x in frameworks]:
             logger.info("Ensure {} is in the project (pbx_frameworks, local)".format(framework))
-            f_path = join(ctx.dist_dir, "frameworks", framework_name)
+            f_path = join(ctx.dist_dir, "frameworks", f"{framework}.framework")
+            project.add_file(f_path, parent=group, tree="DEVELOPER_DIR",
+                             force=False, file_options=file_options_embed)
         else:
             logger.info("Ensure {} is in the project (pbx_frameworks, system)".format(framework))
             f_path = join(sysroot, "System", "Library", "Frameworks",
                           "{}.framework".format(framework))
-        project.add_file(f_path, parent=group, tree="DEVELOPER_DIR",
-                         force=False, file_options=file_options)
+            project.add_file(f_path, parent=group, tree="DEVELOPER_DIR",
+                             force=False, file_options=file_options)
     for library in pbx_libraries:
         logger.info("Ensure {} is in the project (pbx_libraries, dylib+tbd)".format(library))
         f_path = join(sysroot, "usr", "lib",
